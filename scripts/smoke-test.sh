@@ -30,9 +30,6 @@ for scout in chat instructions terminal refactor janitor; do
   bash scripts/master/run-scout.sh "$scout" '{}' || true
 done
 
-echo "== record telemetry =="
-bash scripts/master/record-scout-run.sh --scout chat --trigger smoke --duration-ms 100 --input-chars 500 --output-chars 200 --exit-code 0
-
 echo "== janitor gate =="
 bash scripts/master/check-janitor-gate.sh
 

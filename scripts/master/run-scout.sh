@@ -35,14 +35,25 @@ duration=$((end_ms - start_ms))
 
 stderr_content="$(cat "$stderr_file")"
 stdout_content="$(cat "$stdout_file")"
-input_chars=${#stdout_content}
-output_chars=${#stderr_content}
+input_chars=${#event_context}
+output_chars=${#stdout_content}
+trigger="$(echo "$event_context" | jq -r '.trigger // empty' 2>/dev/null | tr -d '\n' || true)"
+[ -n "$trigger" ] || trigger="manual"
 
 result_file="$runtime/scouts/$scout/last-recon.json"
 stderr_out="$runtime/scouts/$scout/last-recon.stderr"
 
 cp "$stdout_file" "$result_file" 2>/dev/null || true
 echo "$stderr_content" >"$stderr_out"
+
+bash "$SCRIPT_DIR/record-scout-run.sh" \
+  --scout "$scout" \
+  --trigger "$trigger" \
+  --duration-ms "$duration" \
+  --input-chars "$input_chars" \
+  --output-chars "$output_chars" \
+  --exit-code "$exit_code" \
+  --error "$stderr_content" >/dev/null
 
 if jq empty "$stdout_file" 2>/dev/null; then
   jq -n \

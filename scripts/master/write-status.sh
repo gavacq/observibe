@@ -47,15 +47,23 @@ done
 
 recent=""
 if [ -f "$runs" ]; then
-  recent="$(tail -n 10 "$runs" | tail -r 2>/dev/null || tail -n 10 "$runs" | awk '{lines[NR]=$0} END{for(i=NR;i>=1;i--) print lines[i]}' | while IFS= read -r line; do
-    ts=$(echo "$line" | jq -r '.ts' | sed 's/.*T//;s/Z//')
-    scout=$(echo "$line" | jq -r '.scout')
-    trig=$(echo "$line" | jq -r '.trigger')
-    dur=$(echo "$line" | jq -r '.durationMs')
-    dur_s="$(echo "scale=1; $dur / 1000" | bc 2>/dev/null || echo "?")s"
-    tok=$(echo "$line" | jq -r '.approxTokens')
-    echo "| $ts | $scout | $trig | $dur_s | ~${tok} |"
-  done)"
+  recent="$(tail -n 50 "$runs" | jq -s -r '
+    [.[] | select(.ts != null and .scout != null)]
+    | .[-10:]
+    | reverse
+    | .[]
+    | "| "
+      + (.ts | sub(".*T"; "") | sub("Z$"; ""))
+      + " | "
+      + .scout
+      + " | "
+      + (.trigger // "—")
+      + " | "
+      + ((.durationMs / 1000 * 10 | floor) / 10 | tostring)
+      + "s | ~"
+      + (.approxTokens | tostring)
+      + " |"
+  ' 2>/dev/null || true)"
 fi
 
 cooldown_skips=$(jq -r '.cooldownSkipsMs // 0' "$state")
@@ -87,7 +95,7 @@ ${recent:-| — | — | — | — | — |}
 - Last janitor idle gate eval: $now → $janitor_reason
 
 ## Errors (last 5)
-$(tail -n 100 "$runs" 2>/dev/null | jq -r 'select(.exitCode != 0) | "- \(.ts) `\(.scout)/recon.sh` — exit \(.exitCode), \(.error // "see stderr")"' | tail -n 5)
+$(tail -n 100 "$runs" 2>/dev/null | jq -s -r '[.[] | select(.exitCode != null and .exitCode != 0)] | .[-5:] | .[] | "- \(.ts) `\(.scout)/recon.sh` — exit \(.exitCode), \(.error // "see stderr")"' 2>/dev/null || true)
 
 ## Pending self-heal approvals
 See BACKLOG.md § Pending script approvals
