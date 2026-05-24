@@ -6,6 +6,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 POLL_SEC="${OBSERVIBE_POLL_SEC:-5}"
 HEARTBEAT_SEC="${OBSERVIBE_HEARTBEAT_SEC:-600}"
 HOURLY_SEC="${OBSERVIBE_HOURLY_SEC:-3600}"
+TERM_WAKE_COOLDOWN_SEC="${OBSERVIBE_TERM_WAKE_COOLDOWN_SEC:-60}"
 
 project_root="${OBSERVIBE_PROJECT_ROOT:-$(pwd)}"
 runtime="$("$SCRIPT_DIR/../common/runtime-dir.sh" "$project_root")"
@@ -13,6 +14,8 @@ state="$runtime/state.json"
 
 last_events_lines=0
 last_term_sig=""
+last_term_wake_at=0
+last_term_wake_events_lines=-1
 last_heartbeat=0
 last_hourly=0
 start_ts=$(date +%s)
@@ -23,13 +26,21 @@ checksum_terminals() {
   local dir
   dir="$("$SCRIPT_DIR/../common/find-terminals-dir.sh" || true)"
   [ -z "$dir" ] || [ ! -d "$dir" ] && echo "none" && return
-  find "$dir" -name '*.txt' 2>/dev/null | while IFS= read -r f; do
-    # Exclude Observibe watcher terminal — its stdout IS the wake sentinel (feedback loop)
-    if head -n 8 "$f" 2>/dev/null | grep -q 'poll-changes\.sh'; then
-      continue
-    fi
-    stat -f '%m %z %N' "$f" 2>/dev/null || stat -c '%Y %s %n' "$f"
-  done | sort | shasum | awk '{print $1}'
+  python3 - "$dir" <<'PY'
+import hashlib, pathlib, sys
+
+terminals_dir = pathlib.Path(sys.argv[1])
+parts = []
+for f in sorted(terminals_dir.glob("*.txt")):
+    head = f.read_text(errors="replace").split("---", 2)
+    header = head[1] if len(head) > 1 else ""
+    body = head[2] if len(head) > 2 else f.read_text(errors="replace")
+    if "poll-changes.sh" in header or "/observibe/scripts/" in header:
+        continue
+    # Hash body only — ignore frontmatter churn (running_for_ms, etc.)
+    parts.append(f"{f.name}:{hashlib.sha256(body.encode()).hexdigest()[:16]}")
+print(hashlib.sha256("\n".join(parts).encode()).hexdigest()[:16] if parts else "none")
+PY
 }
 
 event_line_count() {
@@ -48,7 +59,11 @@ while true; do
   if [ "$events_lines" != "$last_events_lines" ]; then
     trigger="events-delta"
   elif [ "$term_sig" != "$last_term_sig" ] && [ "$term_sig" != "none" ]; then
-    trigger="terminals-delta"
+    if [ "$events_lines" != "$last_term_wake_events_lines" ] || [ $((now - last_term_wake_at)) -ge "$TERM_WAKE_COOLDOWN_SEC" ]; then
+      trigger="terminals-delta"
+      last_term_wake_at=$now
+      last_term_wake_events_lines=$events_lines
+    fi
   elif [ $((now - last_heartbeat)) -ge "$HEARTBEAT_SEC" ]; then
     trigger="heartbeat-terminal"
     last_heartbeat=$now
