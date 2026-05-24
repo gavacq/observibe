@@ -27,7 +27,7 @@ OBSERVIBE_PLUGIN="$(bash "$HOME/.cursor/plugins/local/observibe/scripts/common/p
 
 - Copies hook scripts → `.cursor/hooks/`
 - Merges Observibe entries into `.cursor/hooks.json` (idempotent)
-- Bootstraps `~/.cursor/observibe/<workspace-slug>/`
+- Bootstraps `.cursor/observibe/` in the workspace
 - Verifies a test `stop` event reaches `events.jsonl`
 
 ## What this does NOT do

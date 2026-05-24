@@ -45,7 +45,7 @@ Track cooldown skips in `state.json.cooldownSkipsMs`.
 ## Hard rules
 
 - **Propose only** — append BACKLOG.md; never edit app code or project AGENTS.md/skills
-- Read-only on project tree except runtime dir + runtime recon scripts
+- Read-only on project tree except runtime dir + `.cursor/observibe/` recon scripts
 - Do not kill/restart feature-agent terminals
 - Ignore Observibe's own transcript (observibeSessionUuid in state)
 - Master Scout never writes analysis — only scout subagents do

@@ -21,7 +21,7 @@ Install Observibe into the **current workspace** so hooks fire from feature-codi
 4. Read the script output and report to the user:
    - `.cursor/hooks/` scripts installed
    - `.cursor/hooks.json` merged (idempotent)
-   - runtime dir path under `~/.cursor/observibe/<slug>/`
+   - runtime dir at `.cursor/observibe/` in the workspace
    - hook verify result
 5. Remind next steps:
    - **Dedicated second chat** → `/observibe`

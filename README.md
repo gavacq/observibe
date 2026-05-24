@@ -49,15 +49,19 @@ This installs `.cursor/hooks/`, merges `.cursor/hooks.json`, bootstraps runtime,
 
 ## Runtime data
 
+Written into each workspace at `.cursor/observibe/`:
+
 ```
-~/.cursor/observibe/<workspace-slug>/
-├── BACKLOG.md       # human review backlog
-├── STATUS.md        # telemetry dashboard
+.cursor/observibe/
+├── BACKLOG.md       # human review backlog (commit-friendly)
+├── STATUS.md        # telemetry dashboard (gitignored by default)
 ├── state.json       # cooldowns + stats
 ├── events.jsonl     # hook events
 ├── scout-runs.jsonl # per-run telemetry
 └── scouts/*/recon.sh
 ```
+
+Legacy path `~/.cursor/observibe/<slug>/` is migrated on first bootstrap.
 
 ## Scouts
 
@@ -94,7 +98,7 @@ Cursor loads from `plugins/local/`, not `cache/local/`. Re-run `bash install.sh`
 Open a third chat:
 
 ```
-Read ~/.cursor/observibe/<slug>/BACKLOG.md. Fix or skip each item. Mark done.
+Read `.cursor/observibe/BACKLOG.md` in the project. Fix or skip each item. Mark done.
 ```
 
 ## Env

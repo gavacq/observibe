@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Emit a stable workspace slug for ~/.cursor/observibe/<slug>/
+# Emit a stable workspace slug for Cursor project paths (terminals, transcripts)
 set -euo pipefail
 
 project_root="${1:-${OBSERVIBE_PROJECT_ROOT:-$(pwd)}}"

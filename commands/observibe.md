@@ -36,7 +36,7 @@ OBSERVIBE_PLUGIN="$(bash "$HOME/.cursor/plugins/local/observibe/scripts/common/p
 
 - **Propose only** — append to `BACKLOG.md`; never edit app code or project AGENTS.md/skills.
 - Master Scout **schedules only** — delegates all analysis to scout subagents.
-- Read-only on project tree except `~/.cursor/observibe/<slug>/`.
+- Read-only on project tree except `.cursor/observibe/` in the workspace.
 
 ## Stop
 
