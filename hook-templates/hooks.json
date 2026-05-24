@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "hooks": {
+    "stop": [
+      {
+        "command": "hooks/log-stop-event.sh"
+      }
+    ],
+    "subagentStop": [
+      {
+        "command": "hooks/log-subagent.sh"
+      }
+    ],
+    "afterShellExecution": [
+      {
+        "command": "hooks/log-shell-event.sh"
+      }
+    ],
+    "postToolUseFailure": [
+      {
+        "command": "hooks/log-tool-fail.sh",
+        "matcher": "Shell"
+      }
+    ],
+    "afterFileEdit": [
+      {
+        "command": "hooks/log-edit-event.sh"
+      }
+    ],
+    "beforeSubmitPrompt": [
+      {
+        "command": "hooks/log-user-msg.sh",
+        "matcher": "UserPromptSubmit"
+      }
+    ]
+  }
+}

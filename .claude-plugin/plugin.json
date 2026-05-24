@@ -1,0 +1,13 @@
+{
+  "name": "observibe",
+  "displayName": "Observibe",
+  "version": "0.1.0",
+  "description": "Observibe — background observation for vibe coding. Master Scout coordinates independent scouts (chat, instructions, terminal, refactor, janitor) that recon signals and append propose-only backlog items while you ship features in another chat.",
+  "author": {
+    "name": "Gavin Acquroff"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/gavacq/observibe",
+  "repository": "https://github.com/gavacq/observibe",
+  "keywords": ["observibe", "observation", "scouts", "hooks", "backlog", "cursor-plugin"]
+}
