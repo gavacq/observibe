@@ -46,14 +46,14 @@ case "$scout" in
     jq -r '
       .terminals[]?
       | select((.matched_lines | length) > 0)
-      | "- [ ] **[\\(.kind) \\(.id)]** \\(.matched_lines[0].line | .[0:140])"
+      | "- [ ] **[\(.kind) \(.id)]** \(.matched_lines[0].line[0:140])"
     ' "$recon" >"$items_file"
     section="Terminal / dev server"
     ;;
   refactor)
     jq -r '
       .duplicates[]?
-      | "- [ ] Duplicate pattern in \\(.files | join(" + ")) — extract shared helper"
+      | "- [ ] Duplicate pattern in \(.files | join(" + ")) — extract shared helper"
     ' "$recon" 2>/dev/null >"$items_file" || : >"$items_file"
     section="Refactoring"
     ;;

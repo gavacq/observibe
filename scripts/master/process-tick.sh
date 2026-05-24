@@ -61,12 +61,14 @@ if [ "${#scouts[@]}" -gt 0 ]; then
   scouts=("${deduped[@]}")
 fi
 
-for scout in "${scouts[@]}"; do
-  [ -z "$scout" ] && continue
-  echo "Running recon: $scout"
-  bash "$SCRIPT_DIR/run-scout.sh" "$scout" "$(jq -nc --arg t "$trigger" '{trigger: $t}')" || true
-  bash "$SCRIPT_DIR/apply-recon-signals.sh" --scout "$scout" || true
-done
+if [ "${#scouts[@]}" -gt 0 ]; then
+  for scout in "${scouts[@]}"; do
+    [ -z "$scout" ] && continue
+    echo "Running recon: $scout"
+    bash "$SCRIPT_DIR/run-scout.sh" "$scout" "$(jq -nc --arg t "$trigger" '{trigger: $t}')" || true
+    bash "$SCRIPT_DIR/apply-recon-signals.sh" --scout "$scout" || true
+  done
+fi
 
 if [ "$trigger" = "hourly" ] || $force_all; then
   if bash "$SCRIPT_DIR/check-janitor-gate.sh" | jq -e '.allowed == true' >/dev/null 2>&1; then
